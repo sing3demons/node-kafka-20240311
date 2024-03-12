@@ -81,7 +81,7 @@ export class KafkaService {
       eachMessage: async ({ topic, partition, message }) => {
         const { headers, offset, value } = message
         const payload = value?.toString() ?? ''
-        let headersJson: Record<string, any> = {}
+
         for (const key in headers) {
           if (headers?.hasOwnProperty(key) && Buffer.isBuffer(headers[key])) {
             headers[key] = headers[key]?.toString()
@@ -92,7 +92,7 @@ export class KafkaService {
           partition,
           offset,
           value: payload,
-          headers: headersJson,
+          headers: headers,
         })
         callback(topic, payload)
       },
