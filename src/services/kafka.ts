@@ -83,11 +83,10 @@ export class KafkaService {
         const payload = value?.toString() ?? ''
         let headersJson: Record<string, any> = {}
         for (const key in headers) {
-          if (headers?.hasOwnProperty(key)) {
-            headersJson[key] = headers[key]?.toString()
+          if (headers?.hasOwnProperty(key) && Buffer.isBuffer(headers[key])) {
+            headers[key] = headers[key]?.toString()
           }
         }
-
         this.logger.info('received message', {
           topic,
           partition,
