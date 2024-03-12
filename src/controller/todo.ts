@@ -1,14 +1,19 @@
 import { Request, Response } from 'express'
-import { KafkaService } from '../services/kafka'
+import { KafkaService, getHeaders } from '../services/kafka'
 
 export class TodoController {
   constructor(private readonly kafkaService: KafkaService) {}
 
   createTodo = async (req: Request, res: Response) => {
+    console.log('Creating todo')
     try {
-      const record = await this.kafkaService.sendMessage('test', {
-        name: 'test',
-      })
+      const record = await this.kafkaService.sendMessage(
+        'test',
+        {
+          name: 'test',
+        },
+        getHeaders(req),
+      )
       return res.json(record)
     } catch (error) {
       console.log(error)
