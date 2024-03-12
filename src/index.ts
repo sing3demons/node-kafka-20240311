@@ -2,6 +2,8 @@ import express from 'express'
 import { KafkaService } from './services/kafka'
 import { TodoController } from './controller/todo'
 
+const port = process.env?.PORT || 3000
+
 async function main() {
   const app = express()
   const kafkaService = new KafkaService()
@@ -10,9 +12,9 @@ async function main() {
 
   app.get('/todo', todoController.createTodo)
 
-  app.listen(3001, () => {
-    kafkaService.consumeMessages('test', testConsumer)
-    console.log('Server is running on port 3000')
+  app.listen(port, async () => {
+    kafkaService.consumeMessages('test', testConsumer).catch(console.error)
+    console.log('Server is running on port ', port)
   })
 
   process.on('SIGINT', async () => {
@@ -23,7 +25,7 @@ async function main() {
 
 main().catch(console.error)
 
-function testConsumer (topic: string, message: string | undefined)  {
+function testConsumer(topic: string, message: string | undefined) {
   console.log('=====================================?')
   console.log(`Received message from topic: ${topic} and message: ${message}`)
 
@@ -38,4 +40,3 @@ function testConsumer (topic: string, message: string | undefined)  {
       break
   }
 }
-
