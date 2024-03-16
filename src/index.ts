@@ -10,10 +10,14 @@ async function main() {
   const todoController = new TodoController(kafkaService)
   app.use(express.json())
 
-  app.get('/todo', todoController.createTodo)
+  app.post('/todo', todoController.createTodo)
+
+  await kafkaService
+    .consumeMessages('test', testConsumer)
+    .then(() => console.log('Listening for messages...'))
+    .catch((error) => console.error('Error starting consumer:', error))
 
   app.listen(port, async () => {
-    kafkaService.consumeMessages('test', testConsumer).catch(console.error)
     console.log('Server is running on port ', port)
   })
 

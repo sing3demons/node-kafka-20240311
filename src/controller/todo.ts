@@ -7,13 +7,7 @@ export class TodoController {
   createTodo = async (req: Request, res: Response) => {
     console.log('Creating todo')
     try {
-      const record = await this.kafkaService.sendMessage(
-        'test',
-        {
-          name: 'test',
-        },
-        getHeaders(req),
-      )
+      const record = await this.kafkaService.sendMessage('test', req.body, getHeaders(req))
       return res.json(record)
     } catch (error) {
       console.log(error)
