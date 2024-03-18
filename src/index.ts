@@ -4,9 +4,9 @@ import { KafkaService } from './services/kafka'
 import { TodoController } from './controller/todo'
 var secret = 'mysecret'
 
-const port = process.env?.PORT || 3000
+const port = process.env?.PORT ?? 3000
 
-async functio n main() {
+async function main() {
   const app = express()
   const kafkaService = new KafkaService()
   const todoController = new TodoController(kafkaService)
