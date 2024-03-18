@@ -1,3 +1,4 @@
+"use strict"
 import express from 'express'
 import { KafkaService } from './services/kafka'
 import { TodoController } from './controller/todo'
@@ -5,7 +6,7 @@ var secret = 'mysecret'
 
 const port = process.env?.PORT || 3000
 
-async function main() {
+async functio n main() {
   const app = express()
   const kafkaService = new KafkaService()
   const todoController = new TodoController(kafkaService)
