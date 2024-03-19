@@ -24,7 +24,7 @@ async function main() {
     .then(() => console.log('Listening for messages...'))
     .catch((error) => console.error('Error starting consumer:', error))
 
-  app.listen(port, async () => {
+  app.listen(port, () => {
     console.log('Server is running on port ', port)
   })
 
