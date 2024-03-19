@@ -3,7 +3,7 @@ import { Kafka, Message, Logger, Admin, IHeaders } from 'kafkajs'
 import { hostname } from 'os'
 import { v4 } from 'uuid'
 
-type MessageCallback = (topic: string, message: string | undefined) => void
+type MessageCallback = (topic: string, message: string) => void
 
 export function getHeaders(req: Request) {
   const headers: IHeaders = {
@@ -73,14 +73,18 @@ export class KafkaService {
   }
 
   async consumeMessages(topic: string, callback: MessageCallback) {
-    const consumer = this.kafka.consumer({ groupId: 'test-group' })
+    const consumer = this.kafka.consumer({ groupId: 'test-group', retry: { retries: 10 } })
     await consumer.connect()
     await consumer.subscribe({ topics: topic.split(','), fromBeginning: true })
+    this.logger.info(`Subscribed to topic:${topic}`)
 
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         const { headers, offset, value } = message
-        const payload = value?.toString() ?? ''
+        const payload = value?.toString()
+        if (!payload) {
+          throw new Error('Payload is empty')
+        }
 
         for (const key in headers) {
           if (headers?.hasOwnProperty(key) && Buffer.isBuffer(headers[key])) {

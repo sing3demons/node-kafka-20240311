@@ -1,15 +1,21 @@
-import { MongoClient } from "mongodb";
+import { MongoClient } from 'mongodb'
 const uri =
-  "mongodb://mongo1:30001,mongo2:30002,mongo3:30003/dev_category?replicaSet=my-replica-set";
+  process.env?.MONGO_URI ??
+  'mongodb://root:example@localhost:27017?authSource=admin'
 
-const client = new MongoClient(uri);
 
-export async function connectMongo() {
+export async function connectToCluster() {
+  let mongoClient
+
   try {
-    await client.connect();
-    console.log("Connected to MongoDB");
+    mongoClient = new MongoClient(uri)
+    console.log('Connecting to MongoDB Atlas cluster...')
+    await mongoClient.connect()
+    console.log('Successfully connected to MongoDB Atlas!')
+
+    return mongoClient
   } catch (error) {
-    console.log(error);
+    console.error('Connection to MongoDB Atlas failed!', error)
+    process.exit()
   }
 }
-

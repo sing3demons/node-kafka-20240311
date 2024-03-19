@@ -1,21 +1,26 @@
-"use strict"
 import express from 'express'
 import { KafkaService } from './services/kafka'
 import { TodoController } from './controller/todo'
-var secret = 'mysecret'
+import { connectToCluster } from './db'
+import { MongoClient } from 'mongodb'
+import { ServiceManager } from './services/serviceManager'
 
 const port = process.env?.PORT ?? 3000
 
 async function main() {
+  const client: MongoClient = await connectToCluster()
   const app = express()
   const kafkaService = new KafkaService()
-  const todoController = new TodoController(kafkaService)
+  const serviceManager = new ServiceManager(client)
+  const todoController = new TodoController(kafkaService, client)
   app.use(express.json())
 
+  app.get('/todo', todoController.getTodos)
   app.post('/todo', todoController.createTodo)
+  app.delete('/todo/:id', todoController.deleteTodo)
 
   await kafkaService
-    .consumeMessages('test', testConsumer)
+    .consumeMessages('test.createTodo', serviceManager.consumer)
     .then(() => console.log('Listening for messages...'))
     .catch((error) => console.error('Error starting consumer:', error))
 
@@ -31,13 +36,16 @@ async function main() {
 
 main().catch(console.error)
 
-function testConsumer(topic: string, message: string | undefined) {
+async function testConsumer(topic: string, message: string | undefined) {
   console.log('=====================================?')
   console.log(`Received message from topic: ${topic} and message: ${message}`)
 
   switch (topic) {
-    case 'test':
+    case 'test.createTodo':
       console.log('Do something with the message')
+      const data = JSON.parse(message as string)
+      // const result = await client.db('todo').collection('todo').insertOne({ ...data })
+      console.log(data)
       break
     case 'test2':
       console.log('Do something else with the message')
