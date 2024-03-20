@@ -4,6 +4,7 @@ import { TodoController } from './controller/todo'
 import { connectToCluster } from './db'
 import { MongoClient } from 'mongodb'
 import { ServiceManager } from './services/serviceManager'
+import { debug } from 'console'
 
 const port = process.env?.PORT ?? 3000
 
@@ -24,13 +25,20 @@ async function main() {
     .then(() => console.log('Listening for messages...'))
     .catch((error) => console.error('Error starting consumer:', error))
 
-  app.listen(port, () => {
-    console.log('Server is running on port ', port)
-  })
+  const server = app.listen(port, () => console.log('Server is running on port ', port))
 
   process.on('SIGINT', async () => {
-    console.log('Shutting down')
-    process.exit(0)
+    debug('SIGINT signal received: closing HTTP server')
+    server.close(() => {
+      debug('HTTP server closed')
+    })
+  })
+
+  process.on('SIGTERM', () => {
+    debug('SIGTERM signal received: closing HTTP server')
+    server.close(() => {
+      debug('HTTP server closed')
+    })
   })
 }
 
