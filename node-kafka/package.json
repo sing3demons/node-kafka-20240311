@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start:prod": "tsc && node ./dist/index.js"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

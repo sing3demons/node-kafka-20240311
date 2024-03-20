@@ -28,11 +28,12 @@ export class KafkaService {
 
   constructor() {
     const brokers = process.env.KAFKA_BROKERS?.split(',') ?? ['localhost:9092']
-    const clientId = process.env.KAFKA_CLIENT_ID ?? 'my-app'
+    const clientId = process.env.KAFKA_CLIENT_ID ?? 'my-app-1'
     const requestTimeout = process.env?.KAFKA_REQUEST_TIMEOUT ?? 30000
     const retry = process.env?.KAFKA_RETRY ?? 8
     const initialRetryTime = process.env?.KAFKA_INITIAL_RETRY_TIME ?? 100
     const logLevel = process.env?.KAFKA_LOG_LEVEL ?? 0
+
     this.kafka = new Kafka({
       clientId,
       brokers,
@@ -41,7 +42,9 @@ export class KafkaService {
         initialRetryTime: Number(initialRetryTime),
         retries: Number(retry),
       },
+      connectionTimeout: 3000,
     })
+
     this.logger = this.kafka.logger()
     this.admin = this.kafka.admin()
   }
