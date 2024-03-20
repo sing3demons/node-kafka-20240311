@@ -33,6 +33,19 @@ export class TodoController {
     }
   }
 
+  getTodo = async (req: Request, res: Response) => {
+    try {
+      const id = new ObjectId(req.params.id); 
+      const todo = await this.client.db('todo').collection('todo').findOne({ _id: id });
+      return res.json(todo);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        return res.status(500).json({ message: error.message });
+      }
+    }
+  }
+
   deleteTodo = async (req: Request, res: Response) => {
     try {
       const id = new ObjectId(req.params.id); 

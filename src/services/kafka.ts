@@ -34,7 +34,6 @@ export class KafkaService {
     const initialRetryTime = process.env?.KAFKA_INITIAL_RETRY_TIME ?? 100
     const logLevel = process.env?.KAFKA_LOG_LEVEL ?? 0
 
-
     this.kafka = new Kafka({
       clientId,
       brokers,
@@ -46,7 +45,6 @@ export class KafkaService {
       connectionTimeout: 3000,
     })
 
-    console.log('KafkaService -> kafka', this.kafka)
     this.logger = this.kafka.logger()
     this.admin = this.kafka.admin()
   }
