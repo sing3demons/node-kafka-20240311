@@ -11,7 +11,7 @@ export default class TodoRouter {
 
   register(router: Router): Router {
     const todoController = new TodoController(this.kafkaService, this.client)
-    router.get('/todo', todoController.getTodos)
+    router.get('/todo', todoController.getTodoList)
     router.get('/todo/:id', todoController.getTodo)
     router.post('/todo', todoController.createTodo)
     router.delete('/todo/:id', todoController.deleteTodo)
