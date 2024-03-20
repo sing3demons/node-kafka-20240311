@@ -26,7 +26,16 @@ function makeStructuredClone<T>(obj: T): T {
   return payload
 }
 
-class Logger {
+type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly'
+
+type ILogger = {
+  info: (message: string, data?: {} | [], session?: string) => void
+  warn: (message: string, data?: {} | [], session?: string) => void
+  error: (message: string, data?: any, session?: string) => void
+  debug: (message: string, data?: {} | [], session?: string) => void
+}
+
+class Logger implements ILogger {
   private readonly log: WinstonLog
   constructor(serviceName?: string) {
     this.log = createLogger({
@@ -63,6 +72,11 @@ class Logger {
   info(message: string, data?: {} | [], session?: string) {
     const action = makeStructuredClone(data)
     this.log.info(message, { ...action, session })
+  }
+
+  warn(message: string, data?: {} | [], session?: string) {
+    const action = makeStructuredClone(data)
+    this.log.warn(message, { ...action, session })
   }
 
   error(message: string, data?: any, session?: string) {
