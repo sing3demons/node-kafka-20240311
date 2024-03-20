@@ -27,8 +27,9 @@ const apiServer = {
 
     const server = app.listen(port)
 
-    process.on('SIGINT', async () => {
+    process.on('SIGINT',  () => {
       console.log('SIGINT signal received: closing HTTP server')
+      // await mongoClient.close()
       server.close(() => {
         console.log('HTTP server closed')
       })
@@ -36,14 +37,16 @@ const apiServer = {
 
     process.on('SIGTERM', () => {
       console.log('SIGTERM signal received: closing HTTP server')
+      // await mongoClient.close()
       server.close(() => {
         console.log('HTTP server closed')
       })
+      
     })
   },
 }
 
 apiServer
   .start(port)
-  .then(() => console.log('Listening for messages...'))
+  .then(() => console.log(`Server running on port ${port}`))
   .catch((error) => console.error('Error starting consumer:', error))
