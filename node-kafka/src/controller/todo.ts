@@ -1,15 +1,17 @@
 import { Request, Response } from 'express'
 import { KafkaService, getHeaders } from '../services/kafka'
-import { Collection, MongoClient, ObjectId } from 'mongodb'
+import { MongoClient, ObjectId } from 'mongodb'
+import Logger from '../logger'
 
 export class TodoController {
   constructor(
     private readonly kafkaService: KafkaService,
     private readonly client: MongoClient,
+    private readonly logger: Logger,
   ) {}
 
   createTodo = async (req: Request, res: Response) => {
-    console.log('Creating todo')
+    this.logger.info('Create todo', req.body)
     try {
       const record = await this.kafkaService.sendMessage('test.createTodo', req.body, getHeaders(req))
       return res.json(record)
@@ -22,6 +24,9 @@ export class TodoController {
   }
 
   getTodoList = async (req: Request, res: Response) => {
+    const session = (req.headers['x-session'] as string) ?? 'unknown'
+    console.log('Get todo list', req.query, session)
+    this.logger.info('Get todo list', req.query, session)
     try {
       const size = (req.query?.size as string) ?? '100'
       const page = (req.query?.page as string) ?? '1'
@@ -31,6 +36,7 @@ export class TodoController {
       const col = this.client.db('todo').collection('todo')
 
       const [data, count] = await Promise.all([col.find().limit(limit).skip(skip).toArray(), col.countDocuments()])
+      this.logger.info('Get todo list', { data, count }, session)
       return res.json({
         data: data,
         totalPages: Math.ceil(count / limit),
@@ -43,7 +49,6 @@ export class TodoController {
       }
     }
   }
-
 
   getTodo = async (req: Request, res: Response) => {
     try {
