@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -46,7 +47,10 @@ type ResponseTodo struct {
 }
 
 func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
-	host := "http://localhost:3000"
+	host := os.Getenv("SERVICE_TODO_HOST")
+	if host == "" {
+		host = "http://localhost:3000"
+	}
 
 	var todoList ResponseTodo
 	size := c.Query("size")
@@ -68,9 +72,13 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 	}
 
 	todoList.Data = make([]Project, 0, len(data.Data))
+	hostName := os.Getenv("SERVICE_TODO_HOST")
+	if hostName == "" {
+		hostName = "http://localhost:8080/api/todo/"
+	}
 
 	for _, project := range data.Data {
-		project.Href = "http://localhost:8080/api/todo/" + project.Id
+		project.Href = hostName + project.Id
 		todoList.Data = append(todoList.Data, project)
 	}
 
@@ -85,7 +93,10 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 }
 
 func (h *todoHandler) GetTodo(c *fiber.Ctx) error {
-	host := "http://localhost:3000"
+	host := os.Getenv("SERVICE_TODO_HOST")
+	if host == "" {
+		host = "http://localhost:3000"
+	}
 	id := c.Params("id")
 
 	project, err := client.HttpClientGet[Project](host + "/todo/" + id)
@@ -97,8 +108,12 @@ func (h *todoHandler) GetTodo(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
+	hostName := os.Getenv("SERVICE_TODO_HOST")
+	if hostName == "" {
+		hostName = "http://localhost:8080/api/todo/"
+	}
 
-	project.Href = "http://localhost:8080/api/todo/" + project.Id
+	project.Href = hostName + project.Id
 
 	return c.JSON(&Response{
 		Status:  "success",

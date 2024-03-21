@@ -14,6 +14,7 @@ services:
     environment:
       - KAFKA_BROKERS=broker:9092
       - KAFKA_TOPICS=test.createTodo
+      - SERVICE_TODO_HOST=http://node-kafka:3000
     ports:
       - "8080:8080"
     networks:
