@@ -18,6 +18,17 @@ services:
       - "8080:8080"
     networks:
       - ms-service
+  node-kafka:
+    build: ./node-kafka
+    environment:
+      - PORT=3000
+      - KAFKA_BROKERS=broker:9092
+      - KAFKA_TOPICS=test.createTodo
+      - MONGO_URI=mongodb://mongo1:30001,mongo2:30002,mongo3:30003/dev_products?replicaSet=my-replica-set
+    ports:
+      - "3000:3000"
+    networks:
+      - ms-service
 networks:
   ms-service:
     name: ms-service

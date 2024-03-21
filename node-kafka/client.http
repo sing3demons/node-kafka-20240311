@@ -6,3 +6,6 @@ Content-Type: application/json
 {
   "name": "John Doe"
 }
+
+###
+GET {{uri}}/todo HTTP/1.1
