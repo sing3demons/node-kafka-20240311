@@ -1,0 +1,24 @@
+version: '3.9'
+name: app-service
+services:
+  service-consomer:
+    build: ./go-comsumer-sarama
+    environment:
+      - KAFKA_BROKERS=broker:9092
+      - KAFKA_TOPICS=test.createTodo
+      - MONGO_URL=mongodb://mongo1:30001,mongo2:30002,mongo3:30003/dev_products?replicaSet=my-replica-set
+    networks:
+      - ms-service
+  kafka-sarama:
+    build: ./go-kafka-sarama
+    environment:
+      - KAFKA_BROKERS=broker:9092
+      - KAFKA_TOPICS=test.createTodo
+    ports:
+      - "8080:8080"
+    networks:
+      - ms-service
+networks:
+  ms-service:
+    name: ms-service
+

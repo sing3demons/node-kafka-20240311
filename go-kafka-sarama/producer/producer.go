@@ -3,12 +3,17 @@ package producer
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/IBM/sarama"
 )
 
 func PushProjectToTopic(topic string, message []byte) error {
-	brokersUrl := []string{"localhost:9092"}
+	brokersUrl := strings.Split(os.Getenv("KAFKA_BROKERS"), ",")
+	if len(brokersUrl) == 0 {
+		brokersUrl = []string{"localhost:9092"}
+	}
 
 	producer, err := ConnectProducer(brokersUrl)
 	if err != nil {
@@ -34,7 +39,12 @@ func PushProjectToTopic(topic string, message []byte) error {
 }
 
 func PushDataToTopic[T any](topic string, messages []T) error {
-	brokersUrl := []string{"localhost:9092"}
+	brokersUrl := strings.Split(os.Getenv("KAFKA_BROKERS"), ",")
+	if len(brokersUrl) == 0 {
+		brokersUrl = []string{"localhost:9092"}
+	}
+
+	// brokersUrl := []string{"localhost:9092"}
 
 	producer, err := ConnectProducer(brokersUrl)
 	if err != nil {

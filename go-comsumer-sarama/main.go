@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -74,6 +75,15 @@ func main() {
 		"error":    err,
 	}).Info("Starting a new Sarama consumer")
 
+	brokers := os.Getenv("KAFKA_BROKERS")
+	if brokers == "" {
+		brokers = "localhost:9092"
+	}
+	topics := os.Getenv("KAFKA_TOPICS")
+	if topics == "" {
+		topics = "test.createTodo"
+	}
+
 	if verbose {
 		sarama.Logger = logger
 	}
@@ -112,8 +122,7 @@ func main() {
 		ready: make(chan bool),
 	}
 
-	brokers := "localhost:9092"
-	topics := "test.createTodo"
+	fmt.Println("brokers: ", brokers)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	client, err := sarama.NewConsumerGroup(strings.Split(brokers, ","), group, config)
@@ -121,7 +130,7 @@ func main() {
 		logger.Panicf("Error creating consumer group client: %v", err)
 	}
 
-	// consumptionIsPaused := false
+	consumptionIsPaused := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -144,8 +153,8 @@ func main() {
 	<-consumer.ready // Await till the consumer has been set up
 	logger.Info("Sarama consumer up and running!...")
 
-	// sigusr1 := make(chan os.Signal, 1)
-	// signal.Notify(sigusr1, syscall.SIGUSR1)
+	sigusr1 := make(chan os.Signal, 1)
+	signal.Notify(sigusr1, syscall.SIGUSR1)
 
 	sigterm := make(chan os.Signal, 1)
 	signal.Notify(sigterm, syscall.SIGINT, syscall.SIGTERM)
@@ -158,8 +167,8 @@ func main() {
 		case <-sigterm:
 			logger.Info("terminating: via signal")
 			keepRunning = false
-			// case <-sigusr1:
-			// 	toggleConsumptionFlow(client, &consumptionIsPaused)
+			case <-sigusr1:
+				toggleConsumptionFlow(client, &consumptionIsPaused)
 		}
 	}
 	cancel()
@@ -169,6 +178,7 @@ func main() {
 	}
 
 }
+
 func toggleConsumptionFlow(client sarama.ConsumerGroup, isPaused *bool) {
 	if *isPaused {
 		client.ResumeAll()
@@ -199,6 +209,7 @@ func (consumer *Consumer) Cleanup(sarama.ConsumerGroupSession) error {
 }
 
 type Header map[string]string
+
 type Message struct {
 	Partition int32     `json:"partition,omitempty"`
 	Offset    int64     `json:"offset,omitempty"`
