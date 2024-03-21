@@ -1,0 +1,60 @@
+version: '3.9'
+name: logger-service
+
+networks:
+  ms-service:
+    name: ms-service
+
+services:
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.13.1
+    container_name: filebeat
+    command: -strict.perms=false
+    user: root
+    mem_limit: 1g
+    restart: always
+    volumes:
+      - "./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ms-service
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+    expose:
+      - "9200"
+    ports:
+      - "9200:9200"
+    networks:
+      - ms-service
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.1
+    container_name: kibana
+    volumes:
+      - "./kibana.yml:/usr/share/kibana/config/kibana.yml"
+    restart: always
+    ports:
+      - "5601:5601"
+    networks:
+      - ms-service
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.13.1
+    volumes:
+      - "./logstash.conf:/usr/share/logstash/pipeline/logstash.conf"
+    restart: always
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "9600:9600"
+      - "7777:7777"
+    networks:
+      - ms-service
+    depends_on:
+      - elasticsearch
