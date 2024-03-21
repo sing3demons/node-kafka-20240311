@@ -72,7 +72,7 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 	}
 
 	todoList.Data = make([]Project, 0, len(data.Data))
-	hostName := os.Getenv("SERVICE_TODO_HOST")
+	hostName := os.Getenv("SERVICE_HOST")
 	if hostName == "" {
 		hostName = "http://localhost:8080/api/todo/"
 	}
