@@ -52,7 +52,7 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 		host = "http://localhost:3000"
 	}
 
-	var todoList ResponseTodo
+	var todoList []Project
 	size := c.Query("size")
 	page := c.Query("page")
 
@@ -61,7 +61,7 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 		query = fmt.Sprintf("?size=%s&page=%s", size, page)
 	}
 
-	data, err := client.HttpClientGet[ResponseTodo](host + "/todo" + query)
+	data, err := client.HttpClientGet[[]Project](host + "/todo" + query)
 
 	if err != nil {
 		return c.JSON(Response{
@@ -71,19 +71,17 @@ func (h *todoHandler) GetTodoList(c *fiber.Ctx) error {
 		})
 	}
 
-	todoList.Data = make([]Project, 0, len(data.Data))
+	todoList = make([]Project, 0, len(data))
 	hostName := os.Getenv("SERVICE_HOST")
 	if hostName == "" {
 		hostName = "http://localhost:8080/api/todo/"
 	}
 
-	for _, project := range data.Data {
+	for _, project := range data {
 		project.Href = hostName + project.Id
-		todoList.Data = append(todoList.Data, project)
+		todoList = append(todoList, project)
 	}
 
-	todoList.TotalPages = data.TotalPages
-	todoList.CurrentPage = data.CurrentPage
 
 	return c.JSON(Response{
 		Status:  "success",
@@ -136,7 +134,7 @@ func (h *todoHandler) CreateProject(c *fiber.Ctx) error {
 		projects = append(projects, project)
 	}
 
-	producer.PushDataToTopic[Project]("test.createTodo", projects)
+	producer.PushDataToTopic[Project]("app.createTodo", projects)
 
 	return c.JSON(&fiber.Map{
 		"success":  true,
@@ -167,8 +165,8 @@ func CreateProjectMulti(c *fiber.Ctx) error {
 		for project := range projectChan {
 			// Push project to the topic
 			b, _ := json.Marshal(project)
-			producer.PushProjectToTopic("test.createTodo", b)
-			wg.Done() // Signal completion after pushing project
+			producer.PushProjectToTopic("app.createTodo", b) //app.createTodo
+			wg.Done()                                        // Signal completion after pushing project
 		}
 	}()
 

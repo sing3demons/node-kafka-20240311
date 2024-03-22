@@ -5,7 +5,7 @@ services:
     build: ./go-comsumer-sarama
     environment:
       - KAFKA_BROKERS=broker:9092
-      - KAFKA_TOPICS=test.createTodo
+      - KAFKA_TOPICS=app.createTodo
       - MONGO_URL=mongodb://mongo1:30001,mongo2:30002,mongo3:30003/dev_products?replicaSet=my-replica-set
     networks:
       - ms-service
@@ -13,7 +13,7 @@ services:
     build: ./go-kafka-sarama
     environment:
       - KAFKA_BROKERS=broker:9092
-      - KAFKA_TOPICS=test.createTodo
+      - KAFKA_TOPICS=app.createTodo
       - SERVICE_TODO_HOST=http://node-kafka:3000
     ports:
       - "8080:8080"
@@ -24,7 +24,7 @@ services:
     environment:
       - PORT=3000
       - KAFKA_BROKERS=broker:9092
-      - KAFKA_TOPICS=test.createTodo
+      - KAFKA_TOPICS=app.createTodo
       - MONGO_URI=mongodb://mongo1:30001,mongo2:30002,mongo3:30003/dev_products?replicaSet=my-replica-set
     ports:
       - "3000:3000"

@@ -22,7 +22,7 @@ const apiServer = {
     new TodoRouter(kafkaService, client, logger).register(app)
 
     // await kafkaService
-    //   .consumeMessages('test.createTodo', serviceManager.consumer)
+    //   .consumeMessages('app.createTodo', serviceManager.consumer)
     //   .then(() => logger.info('Listening for messages...'))
     //   .catch((error) => logger.error('Error starting consumer:', error))
 

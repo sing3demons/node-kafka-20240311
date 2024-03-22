@@ -37,6 +37,18 @@ services:
       - 30003:30003
     networks:
       - ms-service
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin_password
+      ME_CONFIG_MONGODB_SERVER: "mongo1"
+      ME_CONFIG_MONGODB_PORT: "30001"
+    ports:
+      - "8081:8081"
+    networks:
+      - ms-service
 networks:
   ms-service:
     name: ms-service

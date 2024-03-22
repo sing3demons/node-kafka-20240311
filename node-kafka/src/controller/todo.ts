@@ -13,7 +13,7 @@ export class TodoController {
   createTodo = async (req: Request, res: Response) => {
     this.logger.info('Create todo', req.body)
     try {
-      const record = await this.kafkaService.sendMessage('test.createTodo', req.body, getHeaders(req))
+      const record = await this.kafkaService.sendMessage('app.createTodo', req.body, getHeaders(req))
       return res.json(record)
     } catch (error) {
       console.log(error)
@@ -35,13 +35,16 @@ export class TodoController {
       const skip = (parseInt(page) - 1) * limit
       const col = this.client.db('todo').collection('todo')
 
-      const [data, count] = await Promise.all([col.find().limit(limit).skip(skip).toArray(), col.countDocuments()])
-      this.logger.info('Get todo list', { data, count }, session)
-      return res.json({
-        data: data,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
-      })
+      // const [data, count] = await Promise.all([col.find().limit(limit).skip(skip).toArray(), col.countDocuments()])
+      // this.logger.info('Get todo list', { data, count }, session)
+      // return res.json({
+      //   data: data,
+      //   totalPages: Math.ceil(count / limit),
+      //   currentPage: page,
+      // })
+      const data = await col.find().limit(limit).skip(skip).toArray()
+      this.logger.info('Get todo list', { data }, session)
+      return res.json(data)
     } catch (error) {
       console.log(error)
       if (error instanceof Error) {

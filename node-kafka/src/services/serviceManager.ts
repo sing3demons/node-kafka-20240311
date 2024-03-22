@@ -10,7 +10,7 @@ export class ServiceManager {
   consumer = async (topic: string, message: string) => {
     try {
       switch (topic) {
-        case 'test.createTodo':
+        case 'app.createTodo':
           const dbName = 'todo'
           const data = JSON.parse(message)
           const result = await this.client

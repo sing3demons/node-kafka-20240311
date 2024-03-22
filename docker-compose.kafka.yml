@@ -32,7 +32,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:19092,PLAINTEXT_HOST://broker:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CREATE_TOPICS: "write-logs:1:1,test.createTodo:1:1"
+      KAFKA_CREATE_TOPICS: "write-logs:1:1,app.createTodo:1:1"
     healthcheck:
       test: nc -z localhost 9092 || exit 1
       interval: 10s
