@@ -4,6 +4,7 @@ import { MongoService } from './db'
 import { ServiceManager } from './services/serviceManager'
 import TodoRouter from './routes/todo'
 import Logger from './logger'
+import { v4 as uuidv4 } from 'uuid'
 
 const port = process.env?.PORT ?? 3000
 const mongoClient = new MongoService()
@@ -18,6 +19,13 @@ const apiServer = {
 
     const app = express()
     app.use(express.json())
+    app.use((req, res, next) => {
+      if (!req.headers['x-session']) {
+        req.headers['x-session'] = 'unknown-' + uuidv4()
+      }
+
+      next()
+    })
 
     new TodoRouter(kafkaService, client, logger).register(app)
 

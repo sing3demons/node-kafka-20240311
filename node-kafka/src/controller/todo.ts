@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { KafkaService, getHeaders } from '../services/kafka'
 import { MongoClient, ObjectId } from 'mongodb'
 import Logger from '../logger'
+import log, { NewLogger } from '../logger/winston'
 
 export class TodoController {
   constructor(
@@ -24,9 +25,8 @@ export class TodoController {
   }
 
   getTodoList = async (req: Request, res: Response) => {
-    const session = (req.headers['x-session'] as string) ?? 'unknown'
-    console.log('Get todo list', req.query, session)
-    this.logger.info('Get todo list', req.query, session)
+    const logger = NewLogger(req)
+    logger.info('Get todo list', req.query)
     try {
       const size = (req.query?.size as string) ?? '100'
       const page = (req.query?.page as string) ?? '1'
@@ -43,7 +43,7 @@ export class TodoController {
       //   currentPage: page,
       // })
       const data = await col.find().limit(limit).skip(skip).toArray()
-      this.logger.info('Get todo list', { data }, session)
+      logger.info('Get todo list', { data })
       return res.json(data)
     } catch (error) {
       console.log(error)
