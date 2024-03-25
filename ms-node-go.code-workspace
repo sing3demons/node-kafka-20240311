@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "go-comsumer-sarama"
+		},
+		{
+			"path": "go-kafka-sarama"
+		},
+		{
+			"path": "node-kafka"
+		},
+		{
+			"path": "scripts"
+		},
+		{
+			"path": "elk"
+		}
+	],
+	"settings": {}
+}
