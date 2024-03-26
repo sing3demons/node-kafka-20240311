@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb'
 import { KafkaService } from '../services/kafka'
 import { Router } from 'express'
 import Logger from '../logger'
+import TodoRepository from '../repository/todo'
 
 export default class TodoRouter {
   constructor(
@@ -12,7 +13,8 @@ export default class TodoRouter {
   ) {}
 
   register(router: Router): Router {
-    const todoController = new TodoController(this.kafkaService, this.client, this.logger)
+    const todoRepository = new TodoRepository(this.client, this.logger)
+    const todoController = new TodoController(this.kafkaService, this.logger, todoRepository)
     router.get('/todo', todoController.getTodoList)
     router.get('/todo/:id', todoController.getTodo)
     router.post('/todo', todoController.createTodo)
