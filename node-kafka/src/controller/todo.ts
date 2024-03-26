@@ -1,8 +1,6 @@
 import { Request, Response } from 'express'
 import { KafkaService, getHeaders } from '../services/kafka'
-import { MongoClient, ObjectId } from 'mongodb'
 import Logger from '../logger'
-import log, { NewLogger } from '../logger/winston'
 import TodoRepository from '../repository/todo'
 
 export class TodoController {
@@ -38,14 +36,6 @@ export class TodoController {
       const skip = (parseInt(page) - 1) * limit
       const data = await this.todoRepository.findAll({ limit, skip }, req.header('x-session'))
 
-      // const [data, count] = await Promise.all([col.find().limit(limit).skip(skip).toArray(), col.countDocuments()])
-      // this.logger.info('Get todo list', { data, count }, session)
-      // return res.json({
-      //   data: data,
-      //   totalPages: Math.ceil(count / limit),
-      //   currentPage: page,
-      // })
-
       logger.info('response :: ', { data })
       return res.json(data)
     } catch (error) {
@@ -58,8 +48,6 @@ export class TodoController {
 
   getTodo = async (req: Request, res: Response) => {
     try {
-      // const id = new ObjectId(req.params.id)
-      // const todo = await this.client.db('todo').collection('todo').findOne({ _id: id })
       const todo = await this.todoRepository.findOne(req.params.id)
       return res.json(todo)
     } catch (error) {
@@ -72,8 +60,6 @@ export class TodoController {
 
   deleteTodo = async (req: Request, res: Response) => {
     try {
-      // const id = new ObjectId(req.params.id)
-      // const todo = await this.client.db('todo').collection('todo').deleteOne({ _id: id })
       const todo = await this.todoRepository.delete(req.params.id)
       return res.json(todo)
     } catch (error) {
