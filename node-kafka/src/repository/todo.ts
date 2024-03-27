@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb'
 import Logger, { ILogger } from '../logger'
+import { ContextType } from '../context/context'
 
 export default class TodoRepository {
   private readonly dbName = 'todo'
@@ -9,8 +10,8 @@ export default class TodoRepository {
     private readonly logger: Logger,
   ) {}
 
-  findAll = async ({ limit, skip }: Record<string, number>, session?: string) => {
-    this.logger.info('db ', { limit, skip, dbName: this.dbName, collectionName: this.collectionName }, session)
+  findAll = async ({ limit, skip }: Record<string, number>, ctx?: ContextType) => {
+    this.logger.info('db ', { limit, skip, dbName: this.dbName, collectionName: this.collectionName }, ctx)
     try {
       return await this.client.db(this.dbName).collection(this.collectionName).find().limit(limit).skip(skip).toArray()
     } catch (error) {

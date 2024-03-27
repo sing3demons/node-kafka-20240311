@@ -2,6 +2,7 @@ import { Logger as WinstonLog, createLogger, format, transports } from 'winston'
 import ignoreCase from './ignore'
 import Sensitive from './sensitive'
 import { Request } from 'express'
+import { ContextType } from '../context/context'
 
 let level = process.env.LOG_LEVEL ?? 'debug'
 if (process.env.NODE_ENV === 'production') {
@@ -30,10 +31,10 @@ function makeStructuredClone<T>(obj: T): T {
 type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug' | 'silly'
 
 export type ILogger = {
-  info: (message: string, data?: {} | [], session?: string) => void
-  warn: (message: string, data?: {} | [], session?: string) => void
-  error: (message: string, data?: any, session?: string) => void
-  debug: (message: string, data?: {} | [], session?: string) => void
+  info: (message: string, data?: {} | [], ctx?: ContextType) => void
+  warn: (message: string, data?: {} | [], ctx?: ContextType) => void
+  error: (message: string, data?: any, ctx?: ContextType) => void
+  debug: (message: string, data?: {} | [], ctx?: ContextType) => void
 }
 
 class Logger implements ILogger {
@@ -71,32 +72,28 @@ class Logger implements ILogger {
     })
   }
 
-  Logger(req: Request, extra?: object): ILogger{
-    const session: string | undefined = req.header('x-session')
-    if (!session) {
-      throw new Error('Session ID is required')
-    }
-    return  this.log.child({ session, ...extra }) as ILogger
+  Logger(ctx?: ContextType, extra?: object): ILogger {
+    return this.log.child({ ...ctx, ...extra }) as ILogger
   }
 
-  info(message: string, data?: {} | [], session?: string) {
-    const action = makeStructuredClone(data)
-    this.log.info(message, { ...action, session })
+  info(message: string, data?: {} | [], ctx?: ContextType) {
+    const action = { ...makeStructuredClone(data) } 
+    this.log.info(message, { action, ...ctx })
   }
 
-  warn(message: string, data?: {} | [], session?: string) {
-    const action = makeStructuredClone(data)
-    this.log.warn(message, { ...action, session })
+  warn(message: string, data?: {} | [], ctx?: ContextType) {
+    const action = { ...makeStructuredClone(data) }
+    this.log.warn(message, { action, ...ctx })
   }
 
-  error(message: string, data?: any, session?: string) {
-    const action = makeStructuredClone(data)
-    this.log.error(message, { ...action, session })
+  error(message: string, data?: any, ctx?: ContextType) {
+    const action = { ...makeStructuredClone(data) }
+    this.log.error(message, { action, ...ctx })
   }
 
-  debug(message: string, data?: {} | [], session?: string) {
-    const action = makeStructuredClone(data)
-    this.log.debug(message, { ...action, session })
+  debug(message: string, data?: {} | [], ctx?: ContextType) {
+    const action = { ...makeStructuredClone(data) }
+    this.log.debug(message, { action, ...ctx })
   }
 }
 

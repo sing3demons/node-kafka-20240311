@@ -5,6 +5,7 @@ import { ServiceManager } from './services/serviceManager'
 import TodoRouter from './routes/todo'
 import Logger from './logger'
 import { v4 as uuidv4 } from 'uuid'
+import Context from './context/context'
 
 const port = process.env?.PORT ?? 3000
 const mongoClient = new MongoService()
@@ -15,7 +16,7 @@ const apiServer = {
   async start(port: string | number) {
     await mongoClient.connect()
     const client = mongoClient.getClient()
-    const serviceManager = new ServiceManager(client, logger)
+    // const serviceManager = new ServiceManager(client, logger)
 
     const app = express()
     app.use(express.json())
@@ -23,7 +24,7 @@ const apiServer = {
       if (!req.headers['x-session']) {
         req.headers['x-session'] = 'unknown-' + uuidv4()
       }
-
+      Context.bind(req)
       next()
     })
 

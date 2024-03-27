@@ -2,6 +2,9 @@ import { Request, Response } from 'express'
 import { KafkaService, getHeaders } from '../services/kafka'
 import Logger from '../logger'
 import TodoRepository from '../repository/todo'
+import Context from '../context/context'
+
+
 
 export class TodoController {
   constructor(
@@ -11,7 +14,8 @@ export class TodoController {
   ) {}
 
   createTodo = async (req: Request, res: Response) => {
-    const logger = this.logger.Logger(req)
+    const ctx = Context.get()
+    const logger = this.logger.Logger(ctx)
     logger.info('Create todo', req.body)
     try {
       const record = await this.kafkaService.sendMessage('app.createTodo', req.body, getHeaders(req))
@@ -25,8 +29,8 @@ export class TodoController {
   }
 
   getTodoList = async (req: Request, res: Response) => {
-    // const logger = NewLogger(req)
-    const logger = this.logger.Logger(req)
+    const ctx = Context.get()
+    const logger = this.logger.Logger(ctx)
     logger.info('Get todo list', req.query)
     try {
       const size = (req.query?.size as string) ?? '100'
@@ -34,7 +38,7 @@ export class TodoController {
       // improve this to use pagination
       const limit = parseInt(size) ?? 100
       const skip = (parseInt(page) - 1) * limit
-      const data = await this.todoRepository.findAll({ limit, skip }, req.header('x-session'))
+      const data = await this.todoRepository.findAll({ limit, skip }, ctx)
 
       logger.info('response :: ', { data })
       return res.json(data)
