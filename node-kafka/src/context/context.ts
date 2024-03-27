@@ -11,11 +11,11 @@ export default class Context {
   }
 
   static get() {
-    return Context._bindings.get('x-session') || undefined
+    return Context._bindings.get('x-session')
   }
 
-  static clear(req: Request): void {
-    Context._bindings.delete(req)
+  static clear(): void {
+    Context._bindings.delete('x-session')
   }
 
   static getHeaders(req: Request) {
