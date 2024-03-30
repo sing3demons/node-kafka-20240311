@@ -1,21 +1,27 @@
 import { MongoClient } from 'mongodb'
+import Logger from '../logger'
 
 export class ServiceManager {
-  constructor(private readonly client: MongoClient) {}
+  constructor(
+    private readonly client: MongoClient,
+    private readonly logger: Logger,
+  ) {}
 
   consumer = async (topic: string, message: string) => {
     try {
-      console.log('=====================================>')
-      console.log(`Received message from topic: ${topic} and message: ${message}`)
-
       switch (topic) {
-        case 'test.createTodo':
+        case 'app.createTodo':
+          const dbName = 'todo'
           const data = JSON.parse(message)
           const result = await this.client
-            .db('todo')
-            .collection('todo')
+            .db(dbName)
+            .collection(dbName)
             .insertOne({ ...data })
-          console.log(result)
+          this.logger.info('Inserted todo', {
+            topic,
+            message,
+            ...result,
+          })
           break
         case 'test2':
           console.log('Do something else with the message')
